@@ -1,3 +1,5 @@
 flask
 ultralytics
 Pillow
+opencv-python
+rmn 
