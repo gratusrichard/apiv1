@@ -1,6 +1,6 @@
 from flask import Flask,request
 from PIL import Image
-from hardhat import detect
+from YoloObjectdet import detect
 from emotion import emotion_det
 
 
@@ -19,7 +19,7 @@ def hardhat():
 
     imgarr = Image.open(request.files['file'])
 
-    return detect(imgarr)
+    return detect(imgarr, "hardhat.pt")
 
 
 @app.route("/emotion",methods=["POST"])
@@ -28,3 +28,12 @@ def emotion():
     
 
     return emotion_det(imgarr)
+
+
+
+
+@app.route("/helmet", methods=["POST"])
+def helmet():
+    imgarr=Image.open(request.files['file'])
+
+    return detect(imgarr,"bike_helmet.pt")

@@ -1,10 +1,13 @@
 from ultralytics import YOLO
 from flask import jsonify
-model = YOLO("hardhat.pt")
 
 
 
-def detect(image):
+
+
+def detect(image, model_name):
+    model_name = model_name
+    model = YOLO(model_name)
     result = model.predict(source=image,verbose=False)
 
 

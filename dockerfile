@@ -14,6 +14,8 @@ RUN pip install gdown
 
 RUN gdown 1suRXkUCw6-e7dDrzip0aKPRkbgXbUefF
 
+RUN gdown 1aom0L-tJLmkpuN4sutCYFQ9sgVEnSMZr
+
 EXPOSE 5000
 
 CMD [ "flask", "run", "--host=0.0.0.0" ]
