@@ -14,6 +14,8 @@ RUN pip install gdown
 
 RUN gdown 1suRXkUCw6-e7dDrzip0aKPRkbgXbUefF
 
+RUN gdown 1SVdndqvn59f9dZNya5-8CGQbRtybYlMh
+
 RUN gdown 1aom0L-tJLmkpuN4sutCYFQ9sgVEnSMZr
 
 EXPOSE 5000
