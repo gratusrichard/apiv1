@@ -48,3 +48,12 @@ def chefhat():
     imgarr = Image.open(request.files['file'])
 
     return detect(imgarr,"chef_hat.pt")
+
+
+
+#sleep_det
+
+@app.route("/sleep",methods=['POST'])
+def sleep():
+    imgarr = Image.open(request.files['file'])
+    return detect(imgarr,"sleep")
