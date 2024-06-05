@@ -140,3 +140,26 @@ def face_extract():
     
 
 
+def is_within(detected_box, bounding_box):
+    dxmin, dymin, dxmax, dymax = detected_box
+    bxmin, bymin, bxmax, bymax = bounding_box
+    
+    return dxmin >= bxmin and dymin >= bymin and dxmax <= bxmax and dymax <= bymax
+
+@app.route('/detect', methods=['POST'])
+def detect():
+    data = request.get_json()
+    
+    bounding_boxes = data.get('bounding_boxes', [])
+    detected_box = data.get('detected_box', None)
+    
+    if detected_box is None or not bounding_boxes:
+        return jsonify({'error': 'Invalid input'}), 400
+    
+    for index, bounding_box in enumerate(bounding_boxes):
+        if is_within(detected_box, bounding_box):
+            return jsonify({'index': index}), 200
+    
+    return jsonify({'index': -1}), 200  
+
+
