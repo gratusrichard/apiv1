@@ -141,25 +141,37 @@ def face_extract():
 
 
 def is_within(detected_box, bounding_box):
-    dxmin, dymin, dxmax, dymax = detected_box
+    dxmin, dymin, _, _ = detected_box
     bxmin, bymin, bxmax, bymax = bounding_box
     
-    return dxmin >= bxmin and dymin >= bymin and dxmax <= bxmax and dymax <= bymax
+    return dxmin >= bxmin and dymin >= bymin and dxmin <= bxmax and dymin <= bymax
 
-@app.route('/detect', methods=['POST'])
-def detect():
-    data = request.get_json()
+@app.route("/detect", methods=["POST"])
+def detect_object():
+  data = request.get_json()
+
+  if not data:
+    return jsonify({"error": "Missing data in request body"}), 400
+
+  bounding_boxes = data.get("bounding_boxes", {})
+  detected_box = data.get("detected_box")
+
+  if not bounding_boxes or not detected_box:
+    return jsonify({"error": "Missing required fields in data"}), 400
+
+  # Extract top-left corner of detected box
+  detected_x1, detected_y1 = detected_box[0], detected_box[1]
+
+  for box_name, box in bounding_boxes.items():
+    # Extract top-left and bottom-right corners of bounding box
+    box_x1, box_y1, box_x2, box_y2 = box
+
+    # Check if detected top-left corner is within bounding box
+    if detected_x1 >= box_x1 and detected_x1 <= box_x2 and detected_y1 >= box_y1 and detected_y1 <= box_y2:
+      return jsonify({"bounding_box": box_name})
+
+  return jsonify({"bounding_box": None})
+
     
-    bounding_boxes = data.get('bounding_boxes', [])
-    detected_box = data.get('detected_box', None)
-    
-    if detected_box is None or not bounding_boxes:
-        return jsonify({'error': 'Invalid input'}), 400
-    
-    for index, bounding_box in enumerate(bounding_boxes):
-        if is_within(detected_box, bounding_box):
-            return jsonify({'index': index}), 200
-    
-    return jsonify({'index': -1}), 200  
 
 
