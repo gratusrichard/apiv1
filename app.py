@@ -7,6 +7,8 @@ from retina_face import face_det, face_extract_r
 import numpy as np
 import base64
 from io import BytesIO
+from deepface import DeepFace
+
 
 app = Flask(__name__)
 
@@ -159,14 +161,11 @@ def detect_object():
   if not bounding_boxes or not detected_box:
     return jsonify({"error": "Missing required fields in data"}), 400
 
-  # Extract top-left corner of detected box
   detected_x1, detected_y1 = detected_box[0], detected_box[1]
 
   for box_name, box in bounding_boxes.items():
-    # Extract top-left and bottom-right corners of bounding box
     box_x1, box_y1, box_x2, box_y2 = box
 
-    # Check if detected top-left corner is within bounding box
     if detected_x1 >= box_x1 and detected_x1 <= box_x2 and detected_y1 >= box_y1 and detected_y1 <= box_y2:
       return jsonify({"bounding_box": box_name})
 
@@ -174,4 +173,26 @@ def detect_object():
 
     
 
+@app.route('/facerecog',methods=["POST"])
+def faceRecog():
+    face1 = request.files['face1']
+    face2 = request.files['face2']
+    face1 = Image.open(face1)
+    face2 = Image.open(face2)
 
+    face1 = np.array(face1)
+    face2 = np.array(face2)
+
+    face_recog = DeepFace.verify(face1,face2,model_name="Facenet512",detector_backend='retinaface')
+    face_analyze = DeepFace.analyze( face2,
+        actions = ['emotion','race'])
+    
+    
+    
+    return {'facerecog':face_recog,
+            'faceanalyze':face_analyze}
+
+
+
+    
+    
