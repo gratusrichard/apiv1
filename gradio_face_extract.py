@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 import os
 
+
 # Create the output folder if it doesn't exist
 output_folder = "output"
 if not os.path.exists(output_folder):
