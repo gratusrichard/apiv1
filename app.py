@@ -3,7 +3,7 @@ from PIL import Image
 from YoloObjectdet import detect
 from emotion import emotion_det
 from yoloPretrained import detect_pretrained
-from retina_face import face_det, face_extract_r
+from retina_face import face_det, face_extract_r,half_body
 import numpy as np
 import base64
 from io import BytesIO
@@ -64,7 +64,7 @@ def sleep():
 
 
 
-
+#crowd detection
 @app.route("/crowd", methods=['POST'])
 def crowd():
     imgarr = Image.open(request.files['file'])
@@ -98,14 +98,14 @@ def crowd():
         return jsonify(body),200
     
 
-
+#face detection
 @app.route("/face", methods=["POST"])
 def face():
     imgarr = Image.open(request.files['file'])
 
     return face_det(imgarr)
 
-
+#image roi cropping 
 @app.route("/crop",methods=["POST"])
 def crop():
         image = Image.open(request.files['file']) 
@@ -134,20 +134,20 @@ def crop():
 
         
 
-
+#face extraction
 @app.route('/face_extract',methods=["POST"])
 def face_extract():
     imgarr = Image.open(request.files["file"])
     return face_extract_r(imgarr=imgarr)
     
 
-
+#within roi
 def is_within(detected_box, bounding_box):
     dxmin, dymin, _, _ = detected_box
     bxmin, bymin, bxmax, bymax = bounding_box
     
     return dxmin >= bxmin and dymin >= bymin and dxmin <= bxmax and dymin <= bymax
-
+#within roi endpoint
 @app.route("/detect", methods=["POST"])
 def detect_object():
   data = request.get_json()
@@ -171,7 +171,7 @@ def detect_object():
 
   return jsonify({"bounding_box": None})
 
-    
+#Face Recognition
 
 @app.route('/facerecog',methods=["POST"])
 def faceRecog():
@@ -183,9 +183,9 @@ def faceRecog():
     face1 = np.array(face1)
     face2 = np.array(face2)
 
-    face_recog = DeepFace.verify(face1,face2,model_name="Facenet512",detector_backend='retinaface')
+    face_recog = DeepFace.verify(face1,face2,model_name="Facenet512",detector_backend='retinaface',enforce_detection=False)
     face_analyze = DeepFace.analyze( face2,
-        actions = ['emotion','race'])
+        actions = ['emotion','race'],enforce_detection=False)
     
     
     
@@ -196,3 +196,9 @@ def faceRecog():
 
     
     
+@app.route("/peoplehalf", methods=['POST'])
+def peoplehalf():
+        imgarr = Image.open(request.files["file"])
+        return half_body(imgarr)
+
+

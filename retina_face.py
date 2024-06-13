@@ -86,3 +86,57 @@ def face_extract_r(imgarr):
         return responseper,200
     else:
          return None,299
+    
+
+def half_body(imgarr):
+    source = imgarr
+    numpyimage = np.array(source)
+    source = numpyimage
+    images = []
+    personsimages={}
+    # source = cv2.imread(source)
+    # cv2converted = cv2.cvtColor(numpyimage,cv2.COLOR_RGB2BGR)
+
+    # source = cv2converted
+
+
+    faces = RetinaFace.detect_faces(source)
+    print(faces)
+
+    if len(faces)>0:
+        i=0
+        for face_id, face_data in faces.items():
+
+
+            facial_area = face_data['facial_area']
+            x1, y1, x2, y2 = facial_area
+
+            # Calculate the dimensions of the face
+            face_width = x2 - x1
+            face_height = y2 - y1
+            image = source
+
+            new_x1 = int(max(0, x1 - 1.2*face_width))
+            new_y1 = int(max(0,y1 -  face_height))
+            new_x2 = int(min(image.shape[1], x2 + 1.2*face_width))
+            new_y2 = int(min(image.shape[0], y2 + 2.7*face_height))
+            cropped_image = image[new_y1:new_y2, new_x1:new_x2]
+
+            buff = BytesIO()
+            fromarrayimage = Image.fromarray(cropped_image)
+            fromarrayimage.save(buff,format="JPEG")
+            encoded = base64.b64encode(buff.getvalue()).decode("utf-8")
+            personsimages[f'img{i}.jpg'] = encoded
+            images.append(personsimages)
+            personsimages  = {}
+            i+=1
+        responseper = {'total':str(i),
+                        'images ': images
+
+                }
+                
+
+
+        return responseper,200
+    else:
+            return None,299
