@@ -111,7 +111,6 @@ def half_body(imgarr):
             facial_area = face_data['facial_area']
             x1, y1, x2, y2 = facial_area
 
-            # Calculate the dimensions of the face
             face_width = x2 - x1
             face_height = y2 - y1
             image = source
@@ -122,6 +121,8 @@ def half_body(imgarr):
             new_y2 = int(min(image.shape[0], y2 + 2.7*face_height))
             cropped_image = image[new_y1:new_y2, new_x1:new_x2]
 
+            if face_width <50 or face_height <50:
+                break
             buff = BytesIO()
             fromarrayimage = Image.fromarray(cropped_image)
             fromarrayimage.save(buff,format="JPEG")
@@ -130,6 +131,9 @@ def half_body(imgarr):
             images.append(personsimages)
             personsimages  = {}
             i+=1
+
+            print()
+            
         responseper = {'total':str(i),
                         'images ': images
 
@@ -140,3 +144,26 @@ def half_body(imgarr):
         return responseper,200
     else:
             return None,299
+    
+
+
+def blurface(imgarr):
+    source = imgarr
+    numpyimage = np.array(source)
+    source = numpyimage
+    faces = RetinaFace.detect_faces(source)
+
+    for face_id, face_data in faces.items():
+
+        facial_area = face_data['facial_area']
+        x1,y1,x2,y2 = facial_area
+        cropped_image = source[y1:y2,x1:x2]
+        blurredimage = cv2.GaussianBlur(cropped_image,(27,27),0)
+
+        source[y1:y2,x1:x2] = blurredimage
+    buff = BytesIO()
+    fromarrayimage = Image.fromarray(source)
+    fromarrayimage.save(buff,format="JPEG")
+    encoded = base64.b64encode(buff.getvalue()).decode("utf-8")
+
+    return jsonify({'image':encoded})

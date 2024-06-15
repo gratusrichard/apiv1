@@ -1,13 +1,14 @@
-from flask import Flask,request,jsonify
+from flask import Flask,request,jsonify,send_file
 from PIL import Image
 from YoloObjectdet import detect
 from emotion import emotion_det
 from yoloPretrained import detect_pretrained
-from retina_face import face_det, face_extract_r,half_body
+from retina_face import face_det, face_extract_r,half_body,blurface
 import numpy as np
 import base64
 from io import BytesIO
 from deepface import DeepFace
+import requests
 
 
 app = Flask(__name__)
@@ -141,13 +142,12 @@ def face_extract():
     return face_extract_r(imgarr=imgarr)
     
 
-#within roi
 def is_within(detected_box, bounding_box):
     dxmin, dymin, _, _ = detected_box
     bxmin, bymin, bxmax, bymax = bounding_box
     
     return dxmin >= bxmin and dymin >= bymin and dxmin <= bxmax and dymin <= bymax
-#within roi endpoint
+
 @app.route("/detect", methods=["POST"])
 def detect_object():
   data = request.get_json()
@@ -201,4 +201,9 @@ def peoplehalf():
         imgarr = Image.open(request.files["file"])
         return half_body(imgarr)
 
-
+@app.route('/blurface',methods=['POST'])
+def bface():
+    image = requests.get(request.form.get('url')).content
+    imgarr = Image.open(BytesIO(image))
+    return blurface(imgarr)
+    
